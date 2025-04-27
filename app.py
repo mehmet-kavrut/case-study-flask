@@ -1,7 +1,7 @@
 import os
 from flask import Flask, render_template, request, send_file, redirect, url_for, flash
 from werkzeug.utils import secure_filename
-from validators import validate_excel
+from validators import CurrencyCheckerLLM, ExcelValidator
 
 app = Flask(__name__)
 app.secret_key = 'supersecretkey'
@@ -40,10 +40,21 @@ def upload_file():
         file.save(input_path)
 
         try:
-            validated_df = validate_excel(input_path)
-            validated_df.to_excel(output_path, index=False)
-            flash('File processed successfully.')
-            return redirect(url_for('download_file', filename=os.path.basename(output_path)))
+           
+           validator = ExcelValidator(input_path)
+
+           # Run full validation (consistency + accuracy)
+           validated_df = validator.validate_all()
+
+           checker  = CurrencyCheckerLLM(batch_size=5, max_retries=3, retry_delay=5)
+
+           df_checked = checker.check_currency(validated_df)
+
+           # Save to output
+           df_checked.to_excel(output_path, index=False)
+            
+           flash('File processed successfully.')
+           return redirect(url_for('download_file', filename=os.path.basename(output_path)))
         except Exception as e:
             flash(f"Error processing file: {e}")
             return redirect(url_for('index'))

@@ -1,23 +1,157 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Excel Validator</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .container {
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 30px;
+            font-weight: 600;
+        }
+        
+        .upload-area {
+            border: 2px dashed #b8c2cc;
+            border-radius: 8px;
+            padding: 40px 20px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+            background-color: #f8fafc;
+        }
+        
+        .upload-area:hover {
+            border-color: #5e72e4;
+            background-color: #f1f5f9;
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        .file-label {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: #5e72e4;
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            margin-bottom: 15px;
+            transition: background-color 0.3s;
+        }
+        
+        .file-label:hover {
+            background-color: #4757c6;
+        }
+        
+        .file-name {
+            margin-top: 15px;
+            font-size: 14px;
+            color: #64748b;
+        }
+        
+        .submit-btn {
+            background-color: #2dce89;
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            font-size: 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            font-weight: 500;
+            transition: background-color 0.3s;
+        }
+        
+        .submit-btn:hover {
+            background-color: #26af74;
+        }
+        
+        .messages {
+            margin-top: 30px;
+            text-align: left;
+        }
+        
+        .message {
+            background-color: #fff3cd;
+            color: #856404;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            font-size: 14px;
+            border-left: 4px solid #ffc107;
+        }
+        
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+        
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+        }
+    </style>
 </head>
 <body>
-    <h1>Upload Excel File</h1>
-    <form action="/upload" method="post" enctype="multipart/form-data">
-        <input type="file" name="file" accept=".xlsx">
-        <input type="submit" value="Upload and Validate">
-    </form>
+    <div class="container">
+        <h1>Excel Validator</h1>
+        
+        <form action="/upload" method="post" enctype="multipart/form-data">
+            <div class="upload-area">
+                <input type="file" name="file" id="file" class="file-input" accept=".xlsx">
+                <label for="file" class="file-label">Choose Excel File</label>
+                <div class="file-name" id="file-name">No file selected</div>
+            </div>
+            
+            <button type="submit" class="submit-btn">Upload and Validate</button>
+        </form>
+        
+        <div class="messages">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="message {{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        </div>
+    </div>
 
-    {% with messages = get_flashed_messages() %}
-        {% if messages %}
-            <ul>
-            {% for message in messages %}
-                <li>{{ message }}</li>
-            {% endfor %}
-            </ul>
-        {% endif %}
-    {% endwith %}
+    <script>
+        document.getElementById('file').addEventListener('change', function() {
+            const fileName = this.files[0] ? this.files[0].name : 'No file selected';
+            document.getElementById('file-name').textContent = fileName;
+            
+            if (this.files[0]) {
+                document.querySelector('.upload-area').style.borderColor = '#5e72e4';
+            }
+        });
+    </script>
 </body>
 </html>
