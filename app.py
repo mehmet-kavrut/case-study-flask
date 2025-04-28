@@ -1,23 +1,43 @@
 import os
-from flask import Flask, render_template, request, send_file, session, redirect, url_for, flash
-import uuid
-from werkzeug.utils import secure_filename
-from validators import CurrencyCheckerLLM, ExcelValidator
-import pandas as pd
 import time
+import uuid
+import openpyxl
+import pandas as pd
+
+
+from flask import (
+    Flask, render_template, request, send_file,
+    session, redirect, url_for, flash
+    )
+from werkzeug.utils import secure_filename
+
+from validators import CurrencyCheckerLLM, ExcelValidator
+from utils import cleanup_old_files
+
 
 app = Flask(__name__)
-app.secret_key = 'supersecretkey'
+app.secret_key = os.getenv('FLASK_SECRET_KEY')
 
-UPLOAD_FOLDER = 'uploads'
-OUTPUT_FOLDER = 'outputs'
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-os.makedirs(OUTPUT_FOLDER, exist_ok=True)
+os.makedirs('uploads', exist_ok=True)
+os.makedirs('outputs', exist_ok=True)
+
+
+# Cleanup old files on startup
+cleanup_old_files('uploads', days=1)
+cleanup_old_files('outputs', days=1)
+
 
 ALLOWED_EXTENSIONS = {'xlsx'}
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def is_valid_excel(file_path):
+    try:
+        openpyxl.load_workbook(file_path)
+        return True
+    except Exception:
+        return False
 
 @app.route('/')
 def index():
@@ -37,12 +57,12 @@ def upload_file():
 
     if file and allowed_file(file.filename):
         filename = secure_filename(file.filename)
-        input_path = os.path.join(UPLOAD_FOLDER, filename)
+        input_path = os.path.join('uploads', filename)
 
         # Session specific ID
         session_id = str(int(time.time()))
-        output_excel_path = os.path.join(OUTPUT_FOLDER, f"{session_id}_validated.xlsx")
-        output_csv_path = os.path.join(OUTPUT_FOLDER, f"{session_id}_flagged.csv")
+        output_excel_path = os.path.join('outputs', f"{session_id}_validated.xlsx")
+        output_csv_path = os.path.join('outputs', f"{session_id}_flagged.csv")
 
         file.save(input_path)
 
@@ -82,7 +102,7 @@ def upload_file():
 
 @app.route('/results/<session_id>')
 def show_results(session_id):
-    temp_path = os.path.join(OUTPUT_FOLDER, f"{session_id}_flagged.csv")
+    temp_path = os.path.join('outputs', f"{session_id}_flagged.csv")
     if not os.path.exists(temp_path):
         flash('No flagged data found.')
         return redirect(url_for('index'))
@@ -112,7 +132,7 @@ def show_results(session_id):
 
 @app.route('/download/<session_id>')
 def download_flagged(session_id):
-    output_excel_path = os.path.join(OUTPUT_FOLDER, f"{session_id}_validated.xlsx")
+    output_excel_path = os.path.join('outputs', f"{session_id}_validated.xlsx")
     if not os.path.exists(output_excel_path):
         flash('Validated file not found.')
         return redirect(url_for('index'))

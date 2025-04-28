@@ -2,7 +2,6 @@ import os
 import dotenv
 import numpy as np
 import pandas as pd
-import time
 from openai import OpenAI
 from sklearn.cluster import DBSCAN
 from sklearn.preprocessing import StandardScaler
