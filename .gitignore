@@ -5,6 +5,8 @@
 __pycache__/
 
 instance/
+outputs/
+uploads/
 
 .pytest_cache/
 .coverage
