@@ -22,7 +22,13 @@ git clone https://github.com/mehmet-kavrut/case_study_flask.git
 cd case_study_flask
 
 ### 2. Set Up Virtual Environment (Optional but Recommended):
+```bash
 python -m venv .venv
 source .venv/
+
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+
+
 
 
