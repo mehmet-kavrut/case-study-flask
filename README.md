@@ -23,12 +23,38 @@ cd case_study_flask
 
 ### 2. Set Up Virtual Environment (Optional but Recommended):
 ```bash
-python -m venv .venv
-source .venv/
-
 python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+source venv/bin/activate
+```
 
+### 3. Install Dependencies
+```bash
+pip install -r requirements.txt
+```
 
+### 4. Run the Application
+```bash
+flask run
+```
 
+### 5 Access the App
+Open your browser and navigate to http://127.0.0.1:5000/.
 
+# Usage Instruction
+## Web Interface:
+### 1. Upload a dataset file (Excel)
+### 2. View and download flagged values.
+
+# Technologies Used
+- Flask - Web Application Framework
+- Pandas - Python library for data processing and transformation
+- Openpyxl-Python library to read/write Excel 2010 xlsx/xlsm/xltx/xltm files 
+
+# License
+This project is licensed under the MIT License.
+See the LICENSE file for more details.
+
+# Contact Information
+Maintainer: Mehmet Kavrut
+Email: mehmetkavrut@gmail.com
+GitHub: mehmet-kavrut
