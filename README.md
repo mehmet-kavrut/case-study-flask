@@ -11,10 +11,21 @@ The goal of Data Quality Validator is to make it easy for data teams to maintain
 - Session management and secure file handling.
 
 # Installation Instructions
-## Prerequisites
+## 1. Prerequisites
 - Python 3.8+
 - pip package manager
-- (Optional) Virtual environment tool like venv or virtualenv
+- (Optional) Virtual environment tool like `venv` or `virtualenv`
+- Required libraries: Flask, Openpyxl, Pandas, scikit-learn, OpenAI API, etc.
+
+## 2. Environment Variables
+If you're using OpenAI's API for currency validation, you'll need to set up an API key. 
+```bash
+OPENAI_API_KEY=your_api_key_here
+FLASK_SECRET_KEY=your_api_key_here
+```
+
+Create a `.env` file in the root directory of the project and add:
+
 
 ## Steps
 ### 1. Clone the Repository:
@@ -32,6 +43,10 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
+### 4. Troubleshooting
+- If you encounter issues with the `flask run` command, ensure you have activated the virtual environment first.
+- If `pip install` fails, try upgrading `pip` using `pip install --upgrade pip`.
+
 ### 4. Run the Application
 ```bash
 flask run
@@ -46,9 +61,13 @@ Open your browser and navigate to http://127.0.0.1:5000/.
 ### 2. View and download flagged values.
 
 # Technologies Used
-- Flask - Web Application Framework
-- Pandas - Python library for data processing and transformation
-- Openpyxl-Python library to read/write Excel 2010 xlsx/xlsm/xltx/xltm files 
+- Flask: Web Application Framework
+- HTML/CSS: Used for rendering the web interface
+- Openpyxl: A Python library to read/write Excel 2010 .xlsx, .xlsm, .xltx, and .xltm files.
+- OpenAI API: Used for currency validation with Language Learning Models (LLMs). 
+- Pandas: Python library for data processing and transformation
+- Scikit-learn: Python library for machine learning-based outlier detection.
+- Werkzeug: Ensures uploaded file names are sanitized.
 
 # License
 This project is licensed under the MIT License.
