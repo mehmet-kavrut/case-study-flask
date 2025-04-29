@@ -29,7 +29,7 @@ GCS_CREDENTIALS_PATH=path_to_your_service_account_key.json
 Create a `.env` file in the root directory of the project and add:
 
 
-## Steps
+## 3. Steps
 ### 1. Clone the Repository:
 git clone https://github.com/mehmet-kavrut/case_study_flask.git
 cd case_study_flask
