@@ -1,12 +1,16 @@
 import os
-import dotenv
+import logging
 import numpy as np
 import pandas as pd
+from dotenv import load_dotenv
 from openai import OpenAI
 from sklearn.cluster import DBSCAN
 from sklearn.preprocessing import StandardScaler
 
-dotenv.load_dotenv()
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+load_dotenv()
 
 
 class ExcelValidator:
@@ -45,7 +49,7 @@ class ExcelValidator:
             how='left'
         )
 
-        self.df['revenue_outlier'] = self.df['is_outlier'].fillna(False)
+        self.df['revenue_outlier_flag'] = self.df['is_outlier'].fillna(False)
         self.df.drop(columns=['is_outlier'], inplace=True)
 
         return self.df
@@ -111,7 +115,7 @@ class ExcelValidator:
 
 class CurrencyCheckerLLM:
     def __init__(self, model_name="gpt-3.5-turbo", batch_size=5, max_retries=3, retry_delay=5):
-        dotenv.load_dotenv()
+        load_dotenv()
         self.api_key = os.getenv("OPENAI_API_KEY")
 
         # Ensure that the API key is set
@@ -152,7 +156,7 @@ class CurrencyCheckerLLM:
             lines = response.choices[0].message.content.strip().splitlines()
             return [line.strip() for line in lines if "True" in line or "False" in line]
         except Exception as e:
-            print(f"Error processing batch: {e}")
+            logging.error(f"Error processing batch: {e}")
             return ["False"] * len(rows)
 
     def _apply_flags(self, df, start_idx, responses):
@@ -169,6 +173,6 @@ class CurrencyCheckerLLM:
             batch = df.iloc[start:end]
             responses = self._query_llm(batch)
             self._apply_flags(df, start, responses)
-            print(f"Processed rows {start}–{end - 1}")
+            logging.info(f"Processed rows {start}–{end - 1}")
 
         return df

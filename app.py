@@ -1,9 +1,9 @@
 import os
-import time
-import uuid
 import openpyxl
 import pandas as pd
+import json
 
+from time import strftime
 
 from flask import (
     Flask, render_template, request, send_file,
@@ -12,7 +12,7 @@ from flask import (
 from werkzeug.utils import secure_filename
 
 from validators import CurrencyCheckerLLM, ExcelValidator
-from utils import cleanup_old_files
+from utils import cleanup_old_files, upload_to_gcs
 
 
 app = Flask(__name__)
@@ -28,6 +28,7 @@ cleanup_old_files('outputs', days=1)
 
 
 ALLOWED_EXTENSIONS = {'xlsx'}
+
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -60,7 +61,7 @@ def upload_file():
         input_path = os.path.join('uploads', filename)
 
         # Session specific ID
-        session_id = str(int(time.time()))
+        session_id = strftime("%m-%d-%Y-%H-%M")
         output_excel_path = os.path.join('outputs', f"{session_id}_validated.xlsx")
         output_csv_path = os.path.join('outputs', f"{session_id}_flagged.csv")
 
@@ -80,7 +81,7 @@ def upload_file():
             flagged_df = df_checked[
                 (df_checked['companynameofficial_inconsistent']) |
                 (df_checked['geonameen_inconsistent']) |
-                (df_checked['revenue_outlier']) |
+                (df_checked['revenue_outlier_flag']) |
                 (df_checked['dbscan_outlier_flag']) |
                 (df_checked['IQR_outlier_flag']) |
                 (df_checked['negative_revenue_flag']) |
@@ -89,6 +90,9 @@ def upload_file():
 
 
             flagged_df.to_csv(output_csv_path, index=False)
+
+            # Upload files to GCS
+            upload_to_gcs(output_excel_path, f"validated/{session_id}_validated.xlsx")
 
             return redirect(url_for('show_results', session_id=session_id))
 
@@ -111,7 +115,7 @@ def show_results(session_id):
 
     flag_columns = [
         'companynameofficial_inconsistent', 'geonameen_inconsistent',
-        'revenue_outlier', 'dbscan_outlier_flag', 'IQR_outlier_flag', 
+        'revenue_outlier_flag', 'dbscan_outlier_flag', 'IQR_outlier_flag', 
         'negative_revenue_flag', 'currency_check_flag'
     ]
 
